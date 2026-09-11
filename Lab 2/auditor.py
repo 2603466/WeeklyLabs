@@ -3,7 +3,6 @@ print("============================")
 stock_quantity = 0
 inventory = 0
 failed_entries = 0
-failed_entries_total = 0
 print("Stock quantity is :", stock_quantity)
 
 while True:
@@ -15,23 +14,29 @@ while True:
         if stock_quantity == 0:
             print("No Inventory Keyed")
             failed_entries += 1
-            failed_entries_total += failed_entries
             
         if inventory > 500:
-            print("Inventory Exceed 500: "), inventory
-            failed_entires += 1
-            failed_entries_total += failed_entries
+            print("Inventory Exceed 500: ", inventory)
+            failed_entries += 1
+            print("Total failed entries :", failed_entries)
+            break
 
         print("Total Inverntory is :", inventory)
+
     else:
         if stock_quantity == "Quit":
             print("User has quit")
-            print("Total failed entries :", failed_entries_total)
+            print("Total failed entries :", failed_entries)
             break
+
+        elif stock_quantity.strip() == "":
+            print("Nothing entered")
+            failed_entries += 1
+
         elif stock_quantity[0] == "-":
             print("Invalid because negative number")
             failed_entries += 1
-            failed_entries_total += failed_entries
+
         else: 
             print("Invalid input") 
-
+            failed_entries += 1
