@@ -7,5 +7,8 @@ while True:
     if quantity == "q":
         break
 
-    inventory += int(quantity)
-    print(inventory)    
+    quantity = int(quantity)
+    print(type(quantity))
+
+    inventory += quantity
+    print(inventory)
