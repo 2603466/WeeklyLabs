@@ -13,3 +13,7 @@ while True:
 
     else:
         print("Invalid Input")
+
+    if int(inventory) > 500:
+        print("Overstock Quantity: ", inventory)
+        break
