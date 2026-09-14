@@ -7,9 +7,10 @@ while True:
     if quantity == "q":
         break
 
-    if quantity.isdigit():
+    if quantity.isdigit() and int(quantity) >= 0:
         inventory += int(quantity)
         print(inventory)
 
     else:
         print("Invalid Input")
+        
