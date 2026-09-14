@@ -7,8 +7,9 @@ while True:
     if quantity == "q":
         break
 
-    quantity = int(quantity)
-    print(type(quantity))
+    if quantity.isdigit():
+        inventory += int(quantity)
+        print(inventory)
 
-    inventory += quantity
-    print(inventory)
+    else:
+        print("Invalid Input")
