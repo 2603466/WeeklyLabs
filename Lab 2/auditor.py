@@ -1,4 +1,4 @@
-inventory = 0
+inventory = 0 # running total
 
 while True:
     
@@ -12,5 +12,4 @@ while True:
         print(inventory)
 
     else:
-        print("Invalid Input")      
-        
+        print("Invalid Input")
