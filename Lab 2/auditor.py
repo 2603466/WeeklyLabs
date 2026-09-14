@@ -12,5 +12,5 @@ while True:
         print(inventory)
 
     else:
-        print("Invalid Input")
+        print("Invalid Input")      
         
