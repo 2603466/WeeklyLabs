@@ -17,7 +17,7 @@ def process_delivery(current_total, new_value):
     return current_total + new_value
 
 def calculate_tax(amount):
-    return amount * TAX_RATE
+    return round(amount * TAX_RATE, 2)
 
 def generate_report(total_units, failed_entries):
     print("Total errors: ",failed_entries)
@@ -39,15 +39,16 @@ def main():
         elif stock == "error":
             failed_entries += 1
 
+        elif inventory + stock >= MAX_CAPACITY:
+            failed_entries += 1
+            print("Max capacity hit")
+            generate_report(inventory, failed_entries)
+            break
+
         else:
             inventory = process_delivery(inventory, stock)
             print ("Total Inventory is: ", inventory)
-
-            calculate_tax(inventory)
+            total_tax = calculate_tax(inventory)
             print("Total Tax is: ", total_tax)
 
 main()
-
-    
-
-    
