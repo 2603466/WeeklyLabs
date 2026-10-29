@@ -1,3 +1,4 @@
+
 import json
 import os
 
@@ -26,6 +27,15 @@ class Product:
     def get_name(self):
         return self.__name
 
+    def get_id(self):
+        return self.__product_id
+
+    def get_price(self):
+        return self.__price
+
+    def get_stock(self):
+        return self.__stock
+
 
 # Section 2.6 - Inventory Class
 class Inventory:
@@ -52,37 +62,63 @@ class Inventory:
         for product in self.__products:
             product.display_information()
 
+    def get_products(self):
+        return self.__products.copy()
+
 
 # File Handling
 def load_inventory():
+    inventory = Inventory()
+
     if os.path.exists(INVENTORY_FILE):
         with open(INVENTORY_FILE, "r") as file:
-            inventory = json.load(file)
+            saved_products = json.load(file)
+
+        for product in saved_products:
+            new_product = Product(
+                product["id"],
+                product["name"],
+                product["price"],
+                product["stock"]
+            )
+
+            inventory.add_product(new_product)
 
         print("Inventory successfully loaded.")
         return inventory
 
     else:
         print("No inventory file found.")
-        return []
+        return inventory
 
 
 def save_inventory(inventory):
+    products = []
+
+    for product in inventory.get_products():
+        products.append({
+            "id": product.get_id(),
+            "name": product.get_name(),
+            "price": product.get_price(),
+            "stock": product.get_stock()
+        })
+
     with open(INVENTORY_FILE, "w") as file:
-        json.dump(inventory, file, indent=4)
+        json.dump(products, file, indent=4)
 
     print("Inventory successfully saved.")
 
 
-# Week 5 Functions
+# Week 5 Functions - Refactored
 def search_product(inventory):
     search_name = input("Enter product name to search: ")
 
-    for product in inventory:
-        if product["name"].lower() == search_name.lower():
-            print("Product found:")
-            print(product)
-            return product
+    product = inventory.search_product(search_name)
+
+    if product is not None:
+        print("Product found:")
+        product.display_information()
+        return product
 
     print("Product not found.")
     return None
@@ -94,14 +130,9 @@ def add_product(inventory):
     price = float(input("Enter product price: "))
     stock = int(input("Enter stock quantity: "))
 
-    product = {
-        "id": product_id,
-        "name": name,
-        "price": price,
-        "stock": stock
-    }
+    product = Product(product_id, name, price, stock)
 
-    inventory.append(product)
+    inventory.add_product(product)
 
     print("Product successfully added.")
 
@@ -109,32 +140,20 @@ def add_product(inventory):
 def update_stock(inventory):
     search_name = input("Enter product name: ")
 
-    for product in inventory:
-        if product["name"].lower() == search_name.lower():
+    product = inventory.search_product(search_name)
 
-            new_stock = int(input("Enter new stock quantity: "))
-            product["stock"] = new_stock
+    if product is not None:
+        new_stock = int(input("Enter new stock quantity: "))
+        product.update_stock(new_stock)
 
-            print("Stock successfully updated.")
-            return
+        print("Stock successfully updated.")
+        return
 
     print("Product not found.")
 
 
 def display_all(inventory):
-    if len(inventory) == 0:
-        print("Inventory is empty.")
-        return
-
-    print("\n--- Inventory ---")
-
-    for product in inventory:
-        print(
-            "ID:", product["id"],
-            "| Name:", product["name"],
-            "| Price: $", product["price"],
-            "| Stock:", product["stock"]
-        )
+    inventory.display_all()
 
 
 # Main Program
