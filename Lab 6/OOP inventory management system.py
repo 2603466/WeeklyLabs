@@ -18,3 +18,27 @@ class Product:
 
     def get_name(self):
         return self.__name
+
+class Inventory:
+    def __init__(self):
+        self.__products = []
+
+    def add_product(self, product):
+        self.__products.append(product)
+
+    def search_product(self, search_name):
+        for product in self.__products:
+            if product.get_name().lower() == search_name.lower():
+                return product
+
+        return None
+
+    def display_all(self):
+        if len(self.__products) == 0:
+            print("Inventory is empty.")
+            return
+
+        print("\n--- Inventory ---")
+
+        for product in self.__products:
+            product.display_information()
