@@ -15,3 +15,6 @@ class Product:
             "| Price: $", self.__price,
             "| Stock:", self.__stock
         )
+
+    def get_name(self):
+        return self.__name
