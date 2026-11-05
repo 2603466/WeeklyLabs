@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 INVENTORY_FILE = "inventory.json"
 
 
-# Section 2.3 - Product Class
+# Section 3 - Abstract Product Class
 class Product(ABC):
     def __init__(self, product_id, name, price, stock):
         self.__product_id = product_id
@@ -41,11 +41,13 @@ class Product(ABC):
     def get_fulfilment_info(self):
         pass
 
-# Section 4.1 - CanBeShipped Interface
+
+# Section 4 - CanBeShipped Interface
 class CanBeShipped(ABC):
     @abstractmethod
     def calculate_shipping_cost(self):
         pass
+
 
 # Section 1.2 - PhysicalProduct Class
 class PhysicalProduct(Product, CanBeShipped):
@@ -53,15 +55,19 @@ class PhysicalProduct(Product, CanBeShipped):
         super().__init__(product_id, name, price, stock)
         self.__weight = weight
 
-     def display_information(self):
+    def display_information(self):
         super().display_information()
         print("Weight:", self.__weight, "kg")
 
-     def get_fulfilment_info(self):
+    def get_fulfilment_info(self):
         return "This product requires physical shipping."
 
     def calculate_shipping_cost(self):
         return self.__weight * 5
+
+    def get_weight(self):
+        return self.__weight
+
 
 # Section 1.3 - DigitalProduct Class
 class DigitalProduct(Product):
@@ -74,9 +80,13 @@ class DigitalProduct(Product):
         print("Download Size:", self.__download_size, "MB")
 
     def get_fulfilment_info(self):
-        return "This product requires physical shipping."
+        return "This product is delivered digitally."
 
-# Section 2.6 - Inventory Class
+    def get_download_size(self):
+        return self.__download_size
+
+
+# Inventory Class
 class Inventory:
     def __init__(self):
         self.__products = []
@@ -114,12 +124,32 @@ def load_inventory():
             saved_products = json.load(file)
 
         for product in saved_products:
-            new_product = Product(
-                product["id"],
-                product["name"],
-                product["price"],
-                product["stock"]
-            )
+            product_type = product.get("type", "physical")
+
+            if product_type == "physical":
+                new_product = PhysicalProduct(
+                    product["id"],
+                    product["name"],
+                    product["price"],
+                    product["stock"],
+                    product.get("weight", 0.0)
+                )
+
+                if "type" not in product:
+                    print("Legacy product loaded with default weight:", product["name"])
+
+            elif product_type == "digital":
+                new_product = DigitalProduct(
+                    product["id"],
+                    product["name"],
+                    product["price"],
+                    product["stock"],
+                    product["download_size"]
+                )
+
+            else:
+                print("Unknown product type:", product_type)
+                continue
 
             inventory.add_product(new_product)
 
@@ -135,12 +165,22 @@ def save_inventory(inventory):
     products = []
 
     for product in inventory.get_products():
-        products.append({
+        product_data = {
             "id": product.get_id(),
             "name": product.get_name(),
             "price": product.get_price(),
             "stock": product.get_stock()
-        })
+        }
+
+        if isinstance(product, PhysicalProduct):
+            product_data["type"] = "physical"
+            product_data["weight"] = product.get_weight()
+
+        elif isinstance(product, DigitalProduct):
+            product_data["type"] = "digital"
+            product_data["download_size"] = product.get_download_size()
+
+        products.append(product_data)
 
     with open(INVENTORY_FILE, "w") as file:
         json.dump(products, file, indent=4)
@@ -148,7 +188,7 @@ def save_inventory(inventory):
     print("Inventory successfully saved.")
 
 
-# Week 5 Functions - Refactored
+# User Interaction Functions
 def search_product(inventory):
     search_name = input("Enter product name to search: ")
 
@@ -164,12 +204,28 @@ def search_product(inventory):
 
 
 def add_product(inventory):
+    print("\nSelect Product Type:")
+    print("1. Physical Product")
+    print("2. Digital Product")
+
+    product_type = input("Enter product type: ")
+
+    if product_type not in ("1", "2"):
+        print("Invalid product type.")
+        return
+
     product_id = input("Enter product ID: ")
     name = input("Enter product name: ")
     price = float(input("Enter product price: "))
     stock = int(input("Enter stock quantity: "))
 
-    product = Product(product_id, name, price, stock)
+    if product_type == "1":
+        weight = float(input("Enter product weight (kg): "))
+        product = PhysicalProduct(product_id, name, price, stock, weight)
+
+    elif product_type == "2":
+        download_size = float(input("Enter download size (MB): "))
+        product = DigitalProduct(product_id, name, price, stock, download_size)
 
     inventory.add_product(product)
 
