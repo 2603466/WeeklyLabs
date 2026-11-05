@@ -42,14 +42,9 @@ class PhysicalProduct(Product):
         super().__init__(product_id, name, price, stock)
         self.__weight = weight
 
-    def display_information(self):
-        print(
-            "ID:", self.get_id(),
-            "| Name:", self.get_name(),
-            "| Price: $", self.get_price(),
-            "| Stock:", self.get_stock(),
-            "| Weight:", self.__weight, "kg"
-        )
+     def display_information(self):
+        super().display_information()
+        print("Weight:", self.__weight, "kg")
 
 # Section 1.3 - DigitalProduct Class
 class DigitalProduct(Product):
@@ -58,13 +53,8 @@ class DigitalProduct(Product):
         self.__download_size = download_size
 
     def display_information(self):
-        print(
-            "ID:", self.get_id(),
-            "| Name:", self.get_name(),
-            "| Price: $", self.get_price(),
-            "| Stock:", self.get_stock(),
-            "| Download Size:", self.__download_size, "MB"
-        )
+        super().display_information()
+        print("Download Size:", self.__download_size, "MB")
 
 # Section 2.6 - Inventory Class
 class Inventory:
