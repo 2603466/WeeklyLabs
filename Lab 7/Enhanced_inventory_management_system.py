@@ -51,6 +51,21 @@ class PhysicalProduct(Product):
             "| Weight:", self.__weight, "kg"
         )
 
+# Section 1.3 - DigitalProduct Class
+class DigitalProduct(Product):
+    def __init__(self, product_id, name, price, stock, download_size):
+        super().__init__(product_id, name, price, stock)
+        self.__download_size = download_size
+
+    def display_information(self):
+        print(
+            "ID:", self.get_id(),
+            "| Name:", self.get_name(),
+            "| Price: $", self.get_price(),
+            "| Stock:", self.get_stock(),
+            "| Download Size:", self.__download_size, "MB"
+        )
+
 # Section 2.6 - Inventory Class
 class Inventory:
     def __init__(self):
