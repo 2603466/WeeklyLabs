@@ -1,12 +1,13 @@
 
 import json
 import os
+from abc import ABC, abstractmethod
 
 INVENTORY_FILE = "inventory.json"
 
 
 # Section 2.3 - Product Class
-class Product:
+class Product(ABC):
     def __init__(self, product_id, name, price, stock):
         self.__product_id = product_id
         self.__name = name
@@ -36,8 +37,18 @@ class Product:
     def get_stock(self):
         return self.__stock
 
+    @abstractmethod
+    def get_fulfilment_info(self):
+        pass
+
+# Section 4.1 - CanBeShipped Interface
+class CanBeShipped(ABC):
+    @abstractmethod
+    def calculate_shipping_cost(self):
+        pass
+
 # Section 1.2 - PhysicalProduct Class
-class PhysicalProduct(Product):
+class PhysicalProduct(Product, CanBeShipped):
     def __init__(self, product_id, name, price, stock, weight):
         super().__init__(product_id, name, price, stock)
         self.__weight = weight
@@ -45,6 +56,12 @@ class PhysicalProduct(Product):
      def display_information(self):
         super().display_information()
         print("Weight:", self.__weight, "kg")
+
+     def get_fulfilment_info(self):
+        return "This product requires physical shipping."
+
+    def calculate_shipping_cost(self):
+        return self.__weight * 5
 
 # Section 1.3 - DigitalProduct Class
 class DigitalProduct(Product):
@@ -55,6 +72,9 @@ class DigitalProduct(Product):
     def display_information(self):
         super().display_information()
         print("Download Size:", self.__download_size, "MB")
+
+    def get_fulfilment_info(self):
+        return "This product requires physical shipping."
 
 # Section 2.6 - Inventory Class
 class Inventory:
