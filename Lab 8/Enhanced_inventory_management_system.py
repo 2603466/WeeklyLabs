@@ -92,22 +92,30 @@ class DigitalProduct(Product):
 
 
 # Inventory Class
+
 class Inventory:
     def __init__(self):
         self.__products: list[Product] = []
 
-    def add_product(self, product: Product)-> None:
+    def add_product(self, product: Product) -> None:
         self.__products.append(product)
 
-    def remove_product(self, product_id: str)-> None:
+    def find_product(self, product_id: str) -> Product | None:
+        for product in self.__products:
+            if product.get_id().lower() == product_id.lower():
+                return product
+
+        return None
+
+    def remove_product(self, product_id: str) -> None:
         product = self.find_product(product_id)
 
         if product is not None:
             self.__products.remove(product)
 
-    def find_product(self, product_id: str)-> Product | None:
+    def search_product(self, search_name):
         for product in self.__products:
-            if product_id.lower() == product.get_id().lower():
+            if product.get_name().lower() == search_name.lower():
                 return product
 
         return None
