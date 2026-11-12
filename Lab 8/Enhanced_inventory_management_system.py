@@ -8,11 +8,12 @@ INVENTORY_FILE = "inventory.json"
 
 # Abstract Product Class
 class Product(ABC):
-    def __init__(self, product_id, name, price, stock):
+    def __init__(self, product_id, name, price, stock, supplier_info: Supplier):
         self.__product_id = product_id
         self.__name = name
         self.__price = price
         self.__stock = stock
+        self.__supplier: Supplier = supplier_info
 
     def update_stock(self, quantity):
         self.__stock = quantity
@@ -22,7 +23,8 @@ class Product(ABC):
             "ID:", self.__product_id,
             "| Name:", self.__name,
             "| Price: $", self.__price,
-            "| Stock:", self.__stock
+            "| Stock:", self.__stock,
+            "| Supplier:", self.__supplier
         )
 
     def get_name(self):
@@ -36,6 +38,9 @@ class Product(ABC):
 
     def get_stock(self):
         return self.__stock
+
+    def get_supplier(self):
+        return self.__supplier.display_information()
 
     @abstractmethod
     def get_fulfilment_info(self):
@@ -51,8 +56,8 @@ class CanBeShipped(ABC):
 
 # PhysicalProduct Class
 class PhysicalProduct(Product, CanBeShipped):
-    def __init__(self, product_id, name, price, stock, weight):
-        super().__init__(product_id, name, price, stock)
+    def __init__(self, product_id, name, price, stock, weight, supplier_info: Supplier):
+        super().__init__(product_id, name, price, stock, supplier_info)
         self.__weight = weight
 
     def display_information(self):
@@ -71,8 +76,8 @@ class PhysicalProduct(Product, CanBeShipped):
 
 # DigitalProduct Class
 class DigitalProduct(Product):
-    def __init__(self, product_id, name, price, stock, download_size):
-        super().__init__(product_id, name, price, stock)
+    def __init__(self, product_id, name, price, stock, download_size, supplier_info: Supplier):
+        super().__init__(product_id, name, price, stock, supplier_info)
         self.__download_size = download_size
 
     def display_information(self):
@@ -114,6 +119,19 @@ class Inventory:
     def get_products(self):
         return self.__products.copy()
 
+# Supplier Class
+class Supplier:
+    def __init__(self, supplier_id, supplier_name, supplier_contact_email):
+        self.__supplier_id = supplier_id
+        self.__supplier_name = supplier_name
+        self.__contact_email = supplier_contact_email
+
+    def display_information(self):
+        print(
+                    "Supplier ID:", self.__supplier_id,
+                    "| Name:", self.__supplier_name,
+                    "| Email:", self.__contact_email
+                )
 
 # File Handling
 def load_inventory():
