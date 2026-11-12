@@ -94,7 +94,7 @@ class DigitalProduct(Product):
 # Inventory Class
 class Inventory:
     def __init__(self):
-        self.__products = []
+        self.__products: list[Product] = []
 
     def add_product(self, product):
         self.__products.append(product)
