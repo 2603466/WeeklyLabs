@@ -183,6 +183,7 @@ class Order:
 
     def get_order_lines(self) -> list[OrderLine]:
         return self.__order_lines.copy()
+    
 
 # File Handling
 def load_inventory():
@@ -318,6 +319,10 @@ def update_stock(inventory):
 
 def display_all(inventory):
     inventory.display_all()
+
+def show_product_details(product: Product) -> None:
+    product.display_information()
+    print(product.get_fulfilment_info())
 
 
 # Main Program
