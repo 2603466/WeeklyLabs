@@ -1,9 +1,32 @@
-
 import json
 import os
 from abc import ABC, abstractmethod
 
 INVENTORY_FILE = "inventory.json"
+
+
+# Supplier Class
+class Supplier:
+    def __init__(self, supplier_id, supplier_name, supplier_contact_email):
+        self.__supplier_id = supplier_id
+        self.__supplier_name = supplier_name
+        self.__contact_email = supplier_contact_email
+
+    def display_information(self):
+        print(
+            "Supplier ID:", self.__supplier_id,
+            "| Name:", self.__supplier_name,
+            "| Email:", self.__contact_email
+        )
+
+    def get_id(self):
+        return self.__supplier_id
+
+    def get_name(self):
+        return self.__supplier_name
+
+    def get_contact_email(self):
+        return self.__contact_email
 
 
 # Abstract Product Class
@@ -23,9 +46,9 @@ class Product(ABC):
             "ID:", self.__product_id,
             "| Name:", self.__name,
             "| Price: $", self.__price,
-            "| Stock:", self.__stock,
-            "| Supplier:", self.__supplier
+            "| Stock:", self.__stock
         )
+        self.__supplier.display_information()
 
     def get_name(self):
         return self.__name
@@ -40,7 +63,7 @@ class Product(ABC):
         return self.__stock
 
     def get_supplier(self):
-        return self.__supplier.display_information()
+        return self.__supplier
 
     @abstractmethod
     def get_fulfilment_info(self):
@@ -92,7 +115,6 @@ class DigitalProduct(Product):
 
 
 # Inventory Class
-
 class Inventory:
     def __init__(self):
         self.__products: list[Product] = []
@@ -133,19 +155,6 @@ class Inventory:
     def get_products(self):
         return self.__products.copy()
 
-# Supplier Class
-class Supplier:
-    def __init__(self, supplier_id, supplier_name, supplier_contact_email):
-        self.__supplier_id = supplier_id
-        self.__supplier_name = supplier_name
-        self.__contact_email = supplier_contact_email
-
-    def display_information(self):
-        print(
-                    "Supplier ID:", self.__supplier_id,
-                    "| Name:", self.__supplier_name,
-                    "| Email:", self.__contact_email
-                )
 
 # OrderLine Class
 class OrderLine:
@@ -183,7 +192,7 @@ class Order:
 
     def get_order_lines(self) -> list[OrderLine]:
         return self.__order_lines.copy()
-    
+
 
 # File Handling
 def load_inventory():
@@ -195,6 +204,12 @@ def load_inventory():
 
         for product in saved_products:
             product_type = product.get("type", "physical")
+            supplier_data = product.get("supplier") or {}
+            supplier_info = Supplier(
+                supplier_data.get("supplier_id", "Unknown"),
+                supplier_data.get("name", "Unknown"),
+                supplier_data.get("contact_email", "Unknown")
+            )
 
             if product_type == "physical":
                 new_product = PhysicalProduct(
@@ -202,7 +217,8 @@ def load_inventory():
                     product["name"],
                     product["price"],
                     product["stock"],
-                    product.get("weight", 0.0)
+                    product.get("weight", 0.0),
+                    supplier_info
                 )
 
                 if "type" not in product:
@@ -214,7 +230,8 @@ def load_inventory():
                     product["name"],
                     product["price"],
                     product["stock"],
-                    product["download_size"]
+                    product["download_size"],
+                    supplier_info
                 )
 
             else:
@@ -235,11 +252,17 @@ def save_inventory(inventory):
     products = []
 
     for product in inventory.get_products():
+        supplier = product.get_supplier()
         product_data = {
             "id": product.get_id(),
             "name": product.get_name(),
             "price": product.get_price(),
-            "stock": product.get_stock()
+            "stock": product.get_stock(),
+            "supplier": {
+                "supplier_id": supplier.get_id(),
+                "name": supplier.get_name(),
+                "contact_email": supplier.get_contact_email()
+            }
         }
 
         if isinstance(product, PhysicalProduct):
@@ -289,13 +312,18 @@ def add_product(inventory):
     price = float(input("Enter product price: "))
     stock = int(input("Enter stock quantity: "))
 
+    supplier_id = input("Enter supplier ID: ")
+    supplier_name = input("Enter supplier name: ")
+    supplier_contact_email = input("Enter supplier contact email: ")
+    supplier_info = Supplier(supplier_id, supplier_name, supplier_contact_email)
+
     if product_type == "1":
         weight = float(input("Enter product weight (kg): "))
-        product = PhysicalProduct(product_id, name, price, stock, weight)
+        product = PhysicalProduct(product_id, name, price, stock, weight, supplier_info)
 
     elif product_type == "2":
         download_size = float(input("Enter download size (MB): "))
-        product = DigitalProduct(product_id, name, price, stock, download_size)
+        product = DigitalProduct(product_id, name, price, stock, download_size, supplier_info)
 
     inventory.add_product(product)
 
@@ -320,14 +348,17 @@ def update_stock(inventory):
 def display_all(inventory):
     inventory.display_all()
 
+
 def show_product_details(product: Product) -> None:
     product.display_information()
     print(product.get_fulfilment_info())
+
 
 def demonstrate_polymorphism(inventory: Inventory) -> None:
     for product in inventory.get_products():
         product.display_information()
         print(product.get_fulfilment_info())
+
 
 # Main Program
 def main():
@@ -367,7 +398,6 @@ def main():
 
         else:
             print("Invalid option. Please try again.")
-
 
 if __name__ == "__main__":
     main()
