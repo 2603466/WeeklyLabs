@@ -113,6 +113,25 @@ class DigitalProduct(Product):
     def get_download_size(self):
         return self.__download_size
 
+# ProductFactory Class
+class ProductFactory:
+    @staticmethod
+    def create(product_type: str, product_id: str, name: str,
+               price: float, stock_quantity: int, supplier: Supplier,
+               weight: float = 0.0, download_size: float = 0.0) -> Product:
+
+        if product_type == "physical":
+            return PhysicalProduct(
+                product_id, name, price, stock_quantity, weight, supplier
+            )
+
+        elif product_type == "digital":
+            return DigitalProduct(
+                product_id, name, price, stock_quantity, download_size, supplier
+            )
+
+        else:
+            raise ValueError(f"Unknown product type: {product_type}")
 
 # Inventory Class
 class Inventory:
@@ -266,27 +285,30 @@ def load_inventory():
                 supplier_data.get("contact_email", "Unknown")
             )
 
+            
             if product_type == "physical":
-                new_product = PhysicalProduct(
+                new_product = ProductFactory.create(
+                    "physical",
                     product["id"],
                     product["name"],
                     product["price"],
                     product["stock"],
-                    product.get("weight", 0.0),
-                    supplier_info
+                    supplier_info,
+                    weight=product.get("weight", 0.0)
                 )
 
                 if "type" not in product:
                     print("Legacy product loaded with default weight:", product["name"])
 
             elif product_type == "digital":
-                new_product = DigitalProduct(
+                new_product = ProductFactory.create(
+                    "digital",
                     product["id"],
                     product["name"],
                     product["price"],
                     product["stock"],
-                    product["download_size"],
-                    supplier_info
+                    supplier_info,
+                    download_size=product["download_size"]
                 )
 
             else:
@@ -374,16 +396,20 @@ def add_product(inventory):
 
     if product_type == "1":
         weight = float(input("Enter product weight (kg): "))
-        product = PhysicalProduct(product_id, name, price, stock, weight, supplier_info)
+        product = ProductFactory.create(
+            "physical", product_id, name, price, stock, supplier_info,
+            weight=weight
+        )
 
     elif product_type == "2":
         download_size = float(input("Enter download size (MB): "))
-        product = DigitalProduct(product_id, name, price, stock, download_size, supplier_info)
-
+        product = ProductFactory.create(
+            "digital", product_id, name, price, stock, supplier_info,
+            download_size=download_size
+        )
     inventory.add_product(product)
 
     print("Product successfully added.")
-
 
 def update_stock(inventory):
     search_name = input("Enter product name: ")
