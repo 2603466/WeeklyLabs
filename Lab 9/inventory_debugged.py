@@ -31,15 +31,29 @@ class Supplier:
 
 # Abstract Product Class
 class Product(ABC):
-    def __init__(self, product_id, name, price, stock, supplier_info: Supplier):
-        self.__product_id = product_id
-        self.__name = name
-        self.__price = price
-        self.__stock = stock
-        self.__supplier: Supplier = supplier_info
+    
+def __init__(self, product_id, name, price, stock, supplier_info: Supplier):
 
-    def update_stock(self, quantity):
-        self.__stock = quantity
+    if price <= 0:
+        raise ValueError("Product price must be greater than zero.")
+
+    if stock < 0:
+        raise ValueError("Stock quantity cannot be negative.")
+
+    self.__product_id = product_id
+    self.__name = name
+    self.__price = price
+    self.__stock = stock
+    self.__supplier: Supplier = supplier_info
+
+
+    
+def update_stock(self, quantity: int) -> None:
+    if quantity < 0:
+        raise ValueError("Stock quantity cannot be negative.")
+
+    self.__stock = quantity
+
 
     def display_information(self):
         print(
@@ -177,12 +191,14 @@ class Inventory:
 # OrderLine Class
 class OrderLine:
     def __init__(self, product: Product, quantity: int):
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than zero.")
+
         self.product: Product = product
         self.quantity: int = quantity
 
     def calculate_subtotal(self) -> float:
         return self.product.get_price() * self.quantity
-
 
 # Discount Strategy
 class DiscountStrategy(ABC):
