@@ -1,5 +1,6 @@
 import json
 import os
+import csv
 from abc import ABC, abstractmethod
 
 INVENTORY_FILE = "inventory.json"
@@ -45,7 +46,6 @@ def __init__(self, product_id, name, price, stock, supplier_info: Supplier):
     self.__price = price
     self.__stock = stock
     self.__supplier: Supplier = supplier_info
-
 
     
 def update_stock(self, quantity: int) -> None:
@@ -341,6 +341,53 @@ def load_inventory():
         return inventory
 
 
+# Section 5.2 - CSV Loading
+def load_products(path: str, inventory: Inventory, supplier: Supplier) -> None:
+    loaded = 0
+
+    try:
+        file = open(path, newline="")
+
+    except FileNotFoundError:
+        print(f"Products file not found: {path}")
+
+    else:
+        with file:
+            reader = csv.reader(file)
+            next(reader, None)
+
+            for row_number, row in enumerate(reader, start=2):
+                try:
+                    if len(row) != 5:
+                        raise ValueError("Invalid number of columns.")
+
+                    product_type = row[0].strip().lower()
+                    product_id = row[1].strip()
+                    name = row[2].strip()
+                    price = float(row[3])
+                    stock = int(row[4])
+
+                    product = ProductFactory.create(
+                        product_type,
+                        product_id,
+                        name,
+                        price,
+                        stock,
+                        supplier
+                    )
+
+                    inventory.add_product(product)
+                    loaded += 1
+
+                except ValueError as error:
+                    print(f"Skipping row {row_number}: {error}")
+
+        print(f"{loaded} products loaded.")
+
+    finally:
+        print("Load attempt finished.")
+
+
 def save_inventory(inventory):
     products = []
 
@@ -389,6 +436,51 @@ def search_product(inventory):
     return None
 
 
+# User Input Validation
+def get_positive_float(prompt: str) -> float:
+    while True:
+        try:
+            value = float(input(prompt))
+
+            if value <= 0:
+                print("Please enter a number greater than zero.")
+                continue
+
+            return value
+
+        except ValueError:
+            print("Please enter a valid number, e.g. 12.50")
+
+
+def get_nonnegative_int(prompt: str) -> int:
+    while True:
+        try:
+            value = int(input(prompt))
+
+            if value < 0:
+                print("Stock quantity cannot be negative.")
+                continue
+
+            return value
+
+        except ValueError:
+            print("Please enter a valid whole number.")
+
+
+def get_nonnegative_float(prompt: str) -> float:
+    while True:
+        try:
+            value = float(input(prompt))
+
+            if value < 0:
+                print("Please enter a number that is zero or greater.")
+                continue
+
+            return value
+
+        except ValueError:
+            print("Please enter a valid number.")
+
 def add_product(inventory):
     print("\nSelect Product Type:")
     print("1. Physical Product")
@@ -402,8 +494,8 @@ def add_product(inventory):
 
     product_id = input("Enter product ID: ")
     name = input("Enter product name: ")
-    price = float(input("Enter product price: "))
-    stock = int(input("Enter stock quantity: "))
+    price = get_positive_float("Enter product price: ")
+    stock = get_nonnegative_int("Enter stock quantity: ")
 
     supplier_id = input("Enter supplier ID: ")
     supplier_name = input("Enter supplier name: ")
@@ -411,14 +503,14 @@ def add_product(inventory):
     supplier_info = Supplier(supplier_id, supplier_name, supplier_contact_email)
 
     if product_type == "1":
-        weight = float(input("Enter product weight (kg): "))
+        weight = get_nonnegative_float("Enter product weight (kg): ")
         product = ProductFactory.create(
             "physical", product_id, name, price, stock, supplier_info,
             weight=weight
         )
 
     elif product_type == "2":
-        download_size = float(input("Enter download size (MB): "))
+        download_size = get_nonnegative_float("Enter download size (MB): ")
         product = ProductFactory.create(
             "digital", product_id, name, price, stock, supplier_info,
             download_size=download_size
@@ -433,7 +525,7 @@ def update_stock(inventory):
     product = inventory.search_product(search_name)
 
     if product is not None:
-        new_stock = int(input("Enter new stock quantity: "))
+        new_stock = get_nonnegative_int("Enter new stock quantity: ")
         product.update_stock(new_stock)
 
         print("Stock successfully updated.")
