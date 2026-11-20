@@ -1,4 +1,4 @@
 FROM python:3.11-slim
 WORKDIR /app
-COPY supplier_inventory_management_system.py .
-CMD ["python", "supplier_inventory_management_system.py"]
+COPY validated_inventory.py .
+CMD ["python", "validated_inventory.py"]
