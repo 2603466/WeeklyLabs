@@ -32,14 +32,125 @@ class Supplier:
 
 # Abstract Product Class
 class Product(ABC):
-    
-def __init__(self, product_id, name, price, stock, supplier_info: Supplier):
 
+    def __init__(self, product_id, name, price, stock, supplier_info: Supplier):
     if price <= 0:
         raise ValueError("Product price must be greater than zero.")
 
     if stock < 0:
         raise ValueError("Stock quantity cannot be negative.")
+
+def add_product(inventory):
+    print("\nSelect Product Type:")
+    print("1. Physical Product")
+    print("2. Digital Product")
+
+    product_type = input("Enter product type: ")
+
+    if product_type not in ("1", "2"):
+        print("Invalid product type.")
+        return
+
+    product_id = input("Enter product ID: ")
+    name = input("Enter product name: ")
+    price = get_positive_float("Enter product price: ")
+    stock = get_nonnegative_int("Enter stock quantity: ")
+
+    supplier_id = input("Enter supplier ID: ")
+    supplier_name = input("Enter supplier name: ")
+    supplier_contact_email = input("Enter supplier contact email: ")
+    supplier_info = Supplier(supplier_id, supplier_name, supplier_contact_email)
+
+    if product_type == "1":
+        weight = get_nonnegative_float("Enter product weight (kg): ")
+        product = ProductFactory.create(
+            "physical", product_id, name, price, stock, supplier_info,
+            weight=weight
+        )
+
+    elif product_type == "2":
+        download_size = get_nonnegative_float("Enter download size (MB): ")
+        product = ProductFactory.create(
+            "digital", product_id, name, price, stock, supplier_info,
+            download_size=download_size
+        )
+    inventory.add_product(product)
+
+    print("Product successfully added.")
+
+def update_stock(inventory):
+    search_name = input("Enter product name: ")
+
+    product = inventory.search_product(search_name)
+
+    if product is not None:
+        new_stock = get_nonnegative_int("Enter new stock quantity: ")
+        product.update_stock(new_stock)
+
+        print("Stock successfully updated.")
+        return
+
+    print("Product not found.")
+
+
+def display_all(inventory):
+    inventory.display_all()
+
+
+def show_product_details(product: Product) -> None:
+    product.display_information()
+    print(product.get_fulfilment_info())
+
+
+def demonstrate_polymorphism(inventory: Inventory) -> None:
+    for product in inventory.get_products():
+        product.display_information()
+        print(product.get_fulfilment_info())
+
+
+# Main Program
+def main():
+    inventory = load_inventory()
+
+    while True:
+
+        print("\n--- Inventory Menu ---")
+        print("1. Display All Products")
+        print("2. Add Product")
+        print("3. Update Stock")
+        print("4. Search Product")
+        print("5. Save Inventory")
+        print("6. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            display_all(inventory)
+
+        elif choice == "2":
+            add_product(inventory)
+
+        elif choice == "3":
+            update_stock(inventory)
+
+        elif choice == "4":
+            search_product(inventory)
+
+        elif choice == "5":
+            save_inventory(inventory)
+
+        elif choice == "6":
+            save_inventory(inventory)
+            print("Program exited.")
+            break
+
+        else:
+            print("Invalid option. Please try again.")
+
+
+if __name__ == "__main__":
+    main()
+
 
     self.__product_id = product_id
     self.__name = name
