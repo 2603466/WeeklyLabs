@@ -34,11 +34,11 @@ class Supplier:
 class Product(ABC):
 
     def __init__(self, product_id, name, price, stock, supplier_info: Supplier):
-    if price <= 0:
-        raise ValueError("Product price must be greater than zero.")
+        if price <= 0:
+            raise ValueError("Product price must be greater than zero.")
 
-    if stock < 0:
-        raise ValueError("Stock quantity cannot be negative.")
+        if stock < 0:
+            raise ValueError("Stock quantity cannot be negative.")
 
 def add_product(inventory):
     print("\nSelect Product Type:")
