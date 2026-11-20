@@ -199,11 +199,21 @@ class BulkDiscount(DiscountStrategy):
 
         return total
 
+# Student Discount
+class StudentDiscount(DiscountStrategy):
+    def apply(self, total: float) -> float:
+        return total * 0.95
+
 # Order Class
 class Order:
-    def __init__(self, order_id: str):
+    def __init__(self, order_id: str, discount: DiscountStrategy = None):
         self.order_id: str = order_id
         self.__order_lines: list[OrderLine] = []
+
+        if discount is None:
+            self.discount = NoDiscount()
+        else:
+            self.discount = discount
 
     def add_order_line(self, product: Product, quantity: int) -> None:
         order_line = OrderLine(product, quantity)
@@ -215,7 +225,19 @@ class Order:
         for order_line in self.__order_lines:
             total += order_line.calculate_subtotal()
 
-        return total
+        return self.discount.apply(total)
+
+    def set_discount(self, discount: DiscountStrategy) -> None:
+        self.discount = discount
+
+    def remove_order_line(self, product_id: str) -> None:
+        for order_line in self.__order_lines:
+            if order_line.product.get_id() == product_id:
+                self.__order_lines.remove(order_line)
+                return
+
+    def get_order_lines(self) -> list[OrderLine]:
+        return self.__order_lines.copy()
 
     def remove_order_line(self, product_id: str) -> None:
         for order_line in self.__order_lines:
